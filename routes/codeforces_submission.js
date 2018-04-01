@@ -21,14 +21,19 @@ var promise1 = new Promise(function(resolve){
   request(url,function(err,res,body){
     var $ = cheerio.load(body);
     page_count = $('div.pagination ul').children('li').eq(-2).text();
-    page_count = page_count.trim();
+    if(page_count==="")
+    {
+      page_count = 1;
+    }
+    else {
+      page_count = page_count.trim();
+    }
     page_count = parseInt(page_count);
     resolve(page_count);
   });
 });
 
 promise1.then(function(page_count){
-  console.log("Number of pages : "+page_count);
   nextPage(1,page_count);
 });
 
@@ -40,7 +45,11 @@ promise1.then(function(page_count){
       return;
     }
     console.log("page number : "+page);
-    var url = "http://codeforces.com/submissions/"+username+"/page/"+page;
+    var url = "http://codeforces.com/submissions/"+username;
+    if(page_limit>1)
+    {
+      url = url + "/page/"+page;
+    }
     request(url,function(err,res,body){
       var $ = cheerio.load(body);
       var rows = $("div.datatable").find('tr');
