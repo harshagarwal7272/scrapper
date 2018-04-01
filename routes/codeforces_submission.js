@@ -16,16 +16,30 @@ var submissionFunc = function(username,callback){
   var unique_questions_solved = 0;
   var page_count;
 
+var promise1 = new Promise(function(resolve){
   var url = "http://codeforces.com/submissions/"+username;
   request(url,function(err,res,body){
     var $ = cheerio.load(body);
     page_count = $('div.pagination ul').children('li').eq(-2).text();
     page_count = page_count.trim();
     page_count = parseInt(page_count);
+    resolve(page_count);
   });
-  console.log("Number of pages : "+page_count);
+});
 
-  function nextPage(page){
+promise1.then(function(page_count){
+  console.log("Number of pages : "+page_count);
+  nextPage(1,page_count);
+});
+
+  function nextPage(page,page_limit){
+    if(parseInt(page)>parseInt(page_limit))
+    {
+      console.log("hello");
+      ended();
+      return;
+    }
+    console.log("page number : "+page);
     var url = "http://codeforces.com/submissions/"+username+"/page/"+page;
     request(url,function(err,res,body){
       var $ = cheerio.load(body);
@@ -67,9 +81,11 @@ var submissionFunc = function(username,callback){
         }
         questions_list.push(q_name);
       }
-  });
-}
+      nextPage(page+1,page_limit);
+    });
+  }
 
+  function ended(){
     solved = Array.from(new Set(solved));
     unique_questions_solved = solved.length;
     questions_list = Array.from(new Set(questions_list));
@@ -85,6 +101,7 @@ var submissionFunc = function(username,callback){
       compilation_error
     };
     return callback(null,submission_data);
+  }
 }
 
 module.exports = {
