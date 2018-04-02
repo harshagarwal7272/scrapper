@@ -1,5 +1,6 @@
 const express = require('express');
 const codeforces = require('./routes/codeforces_scrapper');
+const codechef = require('./routes/codechef_scrapper');
 
 var app = express();
 
@@ -15,6 +16,18 @@ app.get('/',function(req,res){
       res.send(data);
     }
   });
+});
+
+app.get('/codechef',function(req,res){
+  var username = req.query.handle;
+  codechef.codechefFunc(username,function(err,data){
+    if(err){
+      console.log(err);
+      return err;
+    }else{
+      res.send(data);
+    }
+  })
 });
 
 
